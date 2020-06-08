@@ -1,0 +1,11 @@
+# CLion Files
+.idea/
+*.ipr
+*.iws
+*.ids
+*.iml
+
+# Build Files
+cmake-build-debug/
+cmake-build-release/
+build/
