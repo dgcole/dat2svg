@@ -99,6 +99,10 @@ void write_svg(char* file, struct dat_file dat) {
             sscanf(dat.lines[j], "%f %f", &x0, &y0);
             sscanf(dat.lines[j + 1], "%f %f", &x1, &y1);
 
+            float height = tExt - bExt;
+            y0 = bExt + (tExt - y0);
+            y1 = bExt + (tExt - y1);
+
             fprintf(svg_fp, "<line x1=\"%f\" y1=\"%f\" x2=\"%f\" y2=\"%f\" stroke=\"#000000\" stroke-width=\".1%%\" />\n", x0, y0, x1, y1);
         }
 
