@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 struct dat_file {
     char** lines;
@@ -71,12 +72,15 @@ void write_svg(char* file, struct dat_file dat) {
     }
 
     float lExt, rExt, bExt, tExt;
+    bool hasExtents = true;
     if (sscanf(dat.lines[start_line], "%f %f %f %f", &lExt, &tExt, &rExt, &bExt) != 4) {
         lExt = 0;
         bExt = 0;
 
         rExt = 640;
         tExt = 640;
+
+        hasExtents = false;
     }
 
     FILE*svg_fp;
@@ -88,9 +92,9 @@ void write_svg(char* file, struct dat_file dat) {
     fprintf(svg_fp, "<svg viewBox=\"%f %f %f %f\" xmlns=\"http://www.w3.org/2000/svg\">\n", lExt, bExt, rExt - lExt, tExt - bExt);
 
     int polyline_cnt;
-    sscanf(dat.lines[start_line + 1], "%d", &polyline_cnt);
+    sscanf(dat.lines[hasExtents ? start_line + 1 : start_line], "%d", &polyline_cnt);
 
-    int curr_line = start_line + 2;
+    int curr_line = hasExtents ? start_line + 2 : start_line + 1;
     for (int i = 0; i < polyline_cnt; i++) {
         int polyline_len;
         sscanf(dat.lines[curr_line], "%d", &polyline_len);
