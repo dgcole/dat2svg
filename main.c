@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 struct dat_file {
     char** lines;
@@ -9,7 +10,7 @@ struct dat_file {
 };
 
 void print_usage() {
-
+    printf("usage: dat2svg file.dat\n");
 }
 
 struct dat_file read_dat(char* file) {
@@ -53,6 +54,27 @@ struct dat_file read_dat(char* file) {
 
         lines[i] = line;
         start_nxt = line_curr_ptr;
+    }
+
+    // Compact lines to skip blanks
+    for (int i = 0; i < line_cnt - 1; i++) {
+        char * curr_line = lines[i];
+        bool empty = true;
+        while (*curr_line != '\0') {
+            if (!isspace(*curr_line)) {
+                empty = false;
+                break;
+            }
+            curr_line++;
+        }
+
+        if (empty) {
+            free(lines[i]);
+            for (int j = i; j < line_cnt - 1; j++) {
+                lines[j] = lines[j + 1];
+            }
+            line_cnt--;
+        }
     }
 
     free(dat_buf);
@@ -100,8 +122,8 @@ void write_svg(char* file, struct dat_file dat) {
         sscanf(dat.lines[curr_line], "%d", &polyline_len);
         for (int j = curr_line + 1; j < (curr_line + polyline_len); j++) {
             float x0, y0, x1, y1;
-            sscanf(dat.lines[j], "%f %f", &x0, &y0);
-            sscanf(dat.lines[j + 1], "%f %f", &x1, &y1);
+            sscanf(dat.lines[j], " %f %f", &x0, &y0);
+            sscanf(dat.lines[j + 1], " %f %f", &x1, &y1);
 
             float height = tExt - bExt;
             y0 = bExt + (tExt - y0);
@@ -120,6 +142,7 @@ void write_svg(char* file, struct dat_file dat) {
 int main(int argc, char** argv) {
     if (argc != 2) {
         print_usage();
+        return 0;
     }
 
     struct dat_file dat = read_dat(argv[1]);
